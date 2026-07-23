@@ -1,0 +1,117 @@
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
+
+:root {
+  --fi-primary: #397c73;
+  --fi-primary-strong: #28665e;
+  --fi-primary-soft: #dceee9;
+  --fi-mint: #9ed8c8;
+  --fi-bg: #f5f4ef;
+  --fi-surface: #fffefa;
+  --fi-surface-2: #eeeee8;
+  --fi-text: #173531;
+  --fi-muted: #687976;
+  --fi-border: rgba(37, 82, 75, .11);
+  --fi-danger: #b85d5d;
+  --fi-warning: #b98232;
+  --fi-shadow: 0 12px 35px rgba(30, 67, 61, .09);
+  --fi-radius-xl: 28px;
+  --fi-radius-lg: 22px;
+  --fi-radius-md: 16px;
+  --ion-color-primary: var(--fi-primary);
+  --ion-color-primary-rgb: 57, 124, 115;
+  --ion-color-primary-contrast: #fff;
+  --ion-background-color: var(--fi-bg);
+  --ion-text-color: var(--fi-text);
+  --ion-font-family: Inter, ui-rounded, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+:root.dark {
+  --fi-primary: #71b9ac;
+  --fi-primary-strong: #92d2c6;
+  --fi-primary-soft: #203f3c;
+  --fi-mint: #5d9d92;
+  --fi-bg: #111c1f;
+  --fi-surface: #19272a;
+  --fi-surface-2: #223235;
+  --fi-text: #edf6f3;
+  --fi-muted: #a7bab6;
+  --fi-border: rgba(204, 235, 229, .10);
+  --fi-danger: #e18a8a;
+  --fi-warning: #dfb56f;
+  --fi-shadow: 0 16px 40px rgba(0, 0, 0, .24);
+  --ion-background-color: var(--fi-bg);
+  --ion-text-color: var(--fi-text);
+}
+
+* { box-sizing: border-box; }
+html { background: var(--fi-bg); transition: background-color .2s ease; }
+body { background: var(--fi-bg); color: var(--fi-text); }
+ion-content { --background: var(--fi-bg); }
+ion-toolbar {
+  --background: color-mix(in srgb, var(--fi-bg) 92%, transparent);
+  --color: var(--fi-text);
+  --border-color: transparent;
+}
+ion-header { box-shadow: none !important; }
+ion-title { font-weight: 750; letter-spacing: -.025em; }
+
+.page-shell { width: min(100% - 32px, 920px); margin: 0 auto; padding: 16px 0 116px; }
+.page-heading { margin: 8px 0 24px; }
+.page-heading h1 { margin: 0 0 7px; font-size: clamp(1.8rem, 6vw, 2.45rem); line-height: 1.05; letter-spacing: -.045em; }
+.page-heading p, .muted { color: var(--fi-muted); }
+.eyebrow { margin: 0 0 8px; color: var(--fi-primary); font-size: .76rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+
+.fi-card {
+  display: block; background: var(--fi-surface); border: 1px solid var(--fi-border);
+  border-radius: var(--fi-radius-lg); box-shadow: var(--fi-shadow); overflow: hidden;
+}
+.fi-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 285px), 1fr)); }
+.fi-list { display: grid; gap: 13px; }
+.section-title { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 28px 2px 14px; }
+.section-title h2 { margin: 0; font-size: 1.15rem; letter-spacing: -.02em; }
+.section-title span { color: var(--fi-muted); font-size: .82rem; }
+
+.entity-card { position: relative; display: grid; grid-template-columns: 104px 1fr auto; min-height: 126px; }
+.entity-card .visual { display: grid; place-items: center; background: var(--fi-primary-soft); color: var(--fi-primary); overflow: hidden; }
+.entity-card .visual img { width: 100%; height: 100%; object-fit: cover; }
+.entity-card .visual ion-icon { font-size: 2.2rem; }
+.entity-card .body { min-width: 0; padding: 17px 12px 15px 16px; }
+.entity-card h3 { margin: 0 0 5px; font-size: 1rem; letter-spacing: -.015em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.entity-card p { display: -webkit-box; margin: 0 0 10px; color: var(--fi-muted); font-size: .84rem; line-height: 1.42; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.entity-card .actions { padding: 8px 5px 0 0; }
+.meta-row { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+.fi-chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px; background: var(--fi-primary-soft); color: var(--fi-primary-strong); font-size: .7rem; font-weight: 750; }
+.fi-chip ion-icon { font-size: .82rem; }
+
+.empty-state { padding: 42px 24px; text-align: center; }
+.empty-state .empty-icon { width: 72px; height: 72px; display: grid; place-items: center; margin: 0 auto 20px; border-radius: 24px; background: var(--fi-primary-soft); color: var(--fi-primary); transform: rotate(-3deg); }
+.empty-state .empty-icon ion-icon { font-size: 2.15rem; }
+.empty-state h2 { margin: 0 0 8px; font-size: 1.25rem; }
+.empty-state p { max-width: 390px; margin: 0 auto 22px; color: var(--fi-muted); line-height: 1.55; }
+
+.form-sheet { padding: 6px 20px 32px; }
+.form-section { margin: 14px 0; padding: 18px; background: var(--fi-surface); border: 1px solid var(--fi-border); border-radius: var(--fi-radius-lg); }
+.form-section h3 { margin: 0 0 14px; font-size: .82rem; color: var(--fi-muted); letter-spacing: .08em; text-transform: uppercase; }
+.form-section ion-input, .form-section ion-textarea, .form-section ion-select {
+  --background: var(--fi-surface-2); --padding-start: 15px; --padding-end: 15px; margin: 10px 0;
+  min-height: 56px; border-radius: 14px; border: 1px solid transparent;
+}
+.photo-input { display: block; width: 100%; padding: 16px; border: 1px dashed var(--fi-primary); border-radius: 15px; color: var(--fi-muted); background: var(--fi-primary-soft); }
+.primary-action { margin-top: 18px; --border-radius: 15px; min-height: 52px; font-weight: 750; }
+.fi-fab { margin-bottom: 84px; }
+.fi-fab ion-fab-button { --box-shadow: 0 10px 25px rgba(37, 100, 91, .28); width: 58px; height: 58px; }
+.danger-quiet { --color: var(--fi-danger); }
+.error-note { display: block; margin: 12px 4px; color: var(--fi-danger); }
+
+@keyframes card-in { from { opacity: 0; transform: translateY(8px); } }
+.fi-card, .entity-card { animation: card-in .28s both ease-out; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+@media (max-width: 390px) {
+  .page-shell { width: min(100% - 24px, 920px); }
+  .entity-card { grid-template-columns: 86px 1fr auto; }
+}
+@media (min-width: 900px) { .page-shell { padding-top: 28px; } }
