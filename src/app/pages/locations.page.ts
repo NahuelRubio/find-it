@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInput, IonModal, IonSelect, IonSelectOption, IonTextarea, IonToolbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { add, archiveOutline, bedOutline, businessOutline, cameraOutline, chevronBackOutline, chevronForwardOutline, createOutline, cubeOutline, fileTrayStackedOutline, homeOutline, locationOutline, peopleOutline, personOutline, trashOutline } from 'ionicons/icons';
+import { AuthService } from '../core/auth.service';
 import { DataService } from '../core/data.service';
 import { Item, Location, Owner } from '../core/models';
 import { EmptyStateComponent, LocationPickerComponent, OptionPickerComponent, OwnerSelectorComponent } from '../shared/ui.components';
@@ -14,6 +15,10 @@ import { EmptyStateComponent, LocationPickerComponent, OptionPickerComponent, Ow
   template: `
     <ion-header><ion-toolbar><div class="toolbar-title"><div><p class="eyebrow">Tu mapa de casa</p><h1>{{current()?.name || 'Ubicaciones'}}</h1></div><span>{{totalHere()}}</span></div></ion-toolbar></ion-header>
     <ion-content><main class="page-shell">
+      <div class="scope-toggle" role="group" aria-label="Filtro de propietario">
+        <button type="button" [class.active]="scope==='visible'" (click)="setScope('visible')"><ion-icon name="person-outline"></ion-icon><span>Mis cosas</span></button>
+        <button type="button" [class.active]="scope==='shared'" (click)="setScope('shared')"><ion-icon name="people-outline"></ion-icon><span>Compartido</span></button>
+      </div>
       <nav class="crumbs" aria-label="Ruta de ubicación">
         @if(current()){<button type="button" class="back" (click)="go(parentOf(current()))"><ion-icon name="chevron-back-outline"/>Atrás</button>}
         @for(x of trail(); track x.id){<button type="button" (click)="go(x.id)">{{x.name}}</button><ion-icon name="chevron-forward-outline"/>}
@@ -54,16 +59,20 @@ import { EmptyStateComponent, LocationPickerComponent, OptionPickerComponent, Ow
     <ion-modal [isOpen]="itemOpen" (didDismiss)="closeItem()"><ng-template>
       <ion-header><ion-toolbar><div class="modal-title"><ion-buttons><ion-button type="button" (click)="closeItem()">Cancelar</ion-button></ion-buttons><b>Editar objeto</b><span></span></div></ion-toolbar></ion-header>
       <ion-content><div class="form-sheet">
-        <div class="form-section"><h3>Información</h3><ion-input label="Nombre" labelPlacement="stacked" [(ngModel)]="itemName"/><ion-textarea label="Descripción" labelPlacement="stacked" autoGrow="true" [(ngModel)]="itemDescription"/><app-option-picker label="Categoría" icon="cube-outline" [options]="categoryOptions()" [value]="itemCategory" (valueChange)="itemCategory=$event || 'Otros'"/></div>
+        <div class="form-section"><h3>Información</h3><ion-input label="Nombre" labelPlacement="stacked" [(ngModel)]="itemName"/>
+          @if(itemAdvanced){<ion-textarea label="Descripción" labelPlacement="stacked" autoGrow="true" [(ngModel)]="itemDescription"/><app-option-picker label="Categoría" icon="cube-outline" [options]="categoryOptions()" [value]="itemCategory" (valueChange)="itemCategory=$event || 'Otros'"/>}
+        </div>
         <div class="form-section"><h3>Ubicación</h3><app-option-picker label="Caja" emptyLabel="Sin caja" icon="archive-outline" [allowEmpty]="true" [options]="boxOptions()" [value]="itemBox" (valueChange)="itemBox=$event"/><app-location-picker label="Ubicación directa" emptyLabel="Sin ubicación directa" [locations]="rows()" [value]="itemLocation" [disabled]="!!itemBox" (valueChange)="itemLocation=$event"/></div>
         <div class="form-section"><h3>Fotografía</h3><label class="photo-input"><ion-icon name="camera-outline"/> {{itemFile?.name||'Hacer foto o elegir archivo'}}<input hidden type="file" accept="image/*" capture="environment" (change)="pickItem($event)"></label></div>
-        <div class="form-section"><h3>Propiedad</h3><app-owner-selector [value]="itemOwner" (valueChange)="itemOwner=$event"/></div>
+        @if(itemAdvanced){<div class="form-section"><h3>Propiedad</h3><app-owner-selector [value]="itemOwner" (valueChange)="itemOwner=$event"/></div>}
         @if(error()) { <p class="error-note">{{ error() }}</p> }
+        <ion-button type="button" fill="clear" expand="block" class="advanced-toggle" (click)="itemAdvanced=!itemAdvanced">{{ itemAdvanced ? 'Modo rápido' : 'Avanzado' }}</ion-button>
         <ion-button type="button" class="primary-action" expand="block" (click)="saveItem()" [disabled]="busy() || !itemName.trim()">{{ busy() ? 'Guardando...' : 'Guardar cambios' }}</ion-button>
       </div></ion-content>
     </ng-template></ion-modal></ion-content>`,
   styles: [`
     .toolbar-title{width:min(100% - 32px,920px);height:82px;margin:auto;display:flex;align-items:center;justify-content:space-between}.toolbar-title p,.toolbar-title h1{margin:0}.toolbar-title h1{font-size:1.6rem}.toolbar-title span{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:var(--fi-primary-soft);color:var(--fi-primary);font-weight:800}
+    .scope-toggle{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:0 0 16px;padding:6px;border:1px solid var(--fi-border);border-radius:18px;background:var(--fi-surface-2)}.scope-toggle button{display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;gap:7px;min-height:46px;border:0;border-radius:13px;background:transparent;color:var(--fi-muted);font:inherit;font-size:.8rem;font-weight:750}.scope-toggle button.active{background:var(--fi-surface);color:var(--fi-primary-strong);box-shadow:0 8px 20px rgba(30,67,61,.08)}.scope-toggle ion-icon{font-size:16px}.advanced-toggle{margin-top:6px;--color:var(--fi-primary)}
     .crumbs{display:flex;align-items:center;gap:7px;margin:2px 0 14px;overflow:auto;color:var(--fi-muted);font-size:.78rem}.crumbs button{border:0;background:transparent;color:var(--fi-primary);font:inherit;font-weight:800;white-space:nowrap}.crumbs .back{display:inline-flex;align-items:center;gap:4px;padding:7px 10px;border-radius:12px;background:var(--fi-primary-soft)}.crumbs ion-icon{flex:0 0 auto;font-size:14px}.crumbs strong{color:var(--fi-text);white-space:nowrap}
     .intro{display:flex;gap:14px;align-items:center;margin-bottom:18px;padding:18px}.intro>ion-icon{padding:12px;border-radius:15px;background:var(--fi-primary-soft);color:var(--fi-primary);font-size:24px}.intro p{margin:4px 0 0;color:var(--fi-muted);font-size:.82rem}
     .location-card{position:relative;display:grid;grid-template-columns:58px 1fr auto;align-items:center;gap:14px;padding:16px;cursor:pointer}.location-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:18px;background:var(--fi-primary-soft);color:var(--fi-primary);font-size:26px}.location-card span,.box-card span{color:var(--fi-primary);font-size:.68rem;font-weight:800;text-transform:uppercase}.location-card h2,.box-card h2{margin:3px 0;font-size:1rem}.location-card p,.box-card p{margin:0;color:var(--fi-muted);font-size:.76rem;line-height:1.35}.chevron{color:var(--fi-muted)}.card-actions{position:absolute;right:3px;top:1px;display:flex;align-items:center}.card-actions ion-button{margin:-6px}.location-card:hover .chevron{opacity:0}.modal-title{height:58px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}.modal-title span{display:block}
@@ -72,8 +81,8 @@ import { EmptyStateComponent, LocationPickerComponent, OptionPickerComponent, Ow
   `]
 })
 export class LocationsPage {
-  d=inject(DataService); private route=inject(ActivatedRoute); private router=inject(Router); rows=signal<Location[]>([]); items=signal<any[]>([]); boxes=signal<any[]>([]); currentId=signal<string|null>(null); busy=signal(false); error=signal(''); open=false; editingId:string|null=null; name=''; type='Habitación'; owner:Owner='Nahuel'; parent:string|null=null;
-  itemOpen=false; itemEditingId:string|null=null; requestedItemEditId:string|null=null; itemName=''; itemDescription=''; itemCategory='Otros'; itemOwner:Owner='Compartido'; itemLocation:string|null=null; itemBox:string|null=null; itemFile?:File;
+  d=inject(DataService); private auth=inject(AuthService); private route=inject(ActivatedRoute); private router=inject(Router); rows=signal<Location[]>([]); items=signal<any[]>([]); boxes=signal<any[]>([]); currentId=signal<string|null>(null); busy=signal(false); error=signal(''); open=false; scope:'visible'|'shared'='visible'; editingId:string|null=null; name=''; type='Habitación'; owner:Owner='Compartido'; parent:string|null=null;
+  itemOpen=false; itemAdvanced=false; itemEditingId:string|null=null; requestedItemEditId:string|null=null; itemName=''; itemDescription=''; itemCategory='Otros'; itemOwner:Owner='Compartido'; itemLocation:string|null=null; itemBox:string|null=null; itemFile?:File;
   types=['Casa','Habitación','Armario','Estantería','Cajonera','Cajón','Trastero','Garaje','Personalizada'];
   constructor(){addIcons({add,trashOutline,homeOutline,locationOutline,bedOutline,businessOutline,fileTrayStackedOutline,chevronForwardOutline,chevronBackOutline,createOutline,cubeOutline,archiveOutline,cameraOutline,personOutline,peopleOutline});this.route.queryParamMap.subscribe(async params=>{this.currentId.set(params.get('parent'));this.requestedItemEditId=params.get('editarObjeto');this.parent=this.currentId();await this.load();if(params.get('nuevo')==='1')this.newLocation();if(this.requestedItemEditId)this.openRequestedItemEdit();});}
   iconFor(type:string){const t=type.toLowerCase();return t.includes('casa')?'home-outline':t.includes('habitación')?'bed-outline':t.includes('caj')?'file-tray-stacked-outline':t.includes('armario')||t.includes('estant')?'business-outline':'location-outline';}
@@ -91,19 +100,20 @@ export class LocationsPage {
   boxOptions(){return this.boxes().map(b=>({value:b.id,label:b.name}));}
   ancestors(x:Location){const out:Location[]=[];let id=x.parent_id;while(id){const p=this.rows().find(r=>r.id===id);if(!p)break;out.unshift(p);id=p.parent_id;}return out;}
   parentOptions(){const descendants=new Set<string>();const collect=(id:string)=>{for(const child of this.rows().filter(x=>x.parent_id===id)){descendants.add(child.id);collect(child.id);}};if(this.editingId)collect(this.editingId);return this.rows().filter(x=>x.id!==this.editingId&&!descendants.has(x.id));}
+  setScope(scope:'visible'|'shared'){this.scope=scope;this.load();}
   go(parent:string|null){this.router.navigate(['/lugares'],{queryParams:parent?{parent}:null});}
   openForCurrent(){this.newLocation();}
   newLocation(){this.reset();this.parent=this.currentId();this.open=true;}
   edit(e:Event,x:Location){e.stopPropagation();this.editingId=x.id;this.name=x.name;this.type=x.type;this.owner=x.owner;this.parent=x.parent_id;this.error.set('');this.open=true;}
   close(){this.open=false;this.reset();}
-  reset(){this.editingId=null;this.name='';this.type='Habitación';this.owner='Nahuel';this.parent=this.currentId();this.error.set('');}
-  async load(){const scope=this.requestedItemEditId?'all':'visible';const[l,i,b]=await Promise.all([this.d.locations(false,scope),this.d.items(false,scope),this.d.boxes(false,scope)]);this.rows.set(l);this.boxes.set(await Promise.all(b.map(async x=>({...x,url:await this.d.signed(x.exterior_photo_path)}))));this.items.set(await Promise.all(i.map(async x=>({...x,url:await this.d.signed(x.photo_path)}))));}
+  reset(){this.editingId=null;this.name='';this.type='Habitación';this.owner=this.auth.profile()?.display_name||'Compartido';this.parent=this.currentId();this.error.set('');}
+  async load(){const scope=this.requestedItemEditId?'all':this.scope==='shared'?'all':this.scope;const[l,i,b]=await Promise.all([this.d.locations(false,scope),this.d.items(false,scope),this.d.boxes(false,scope)]);const locations=this.scope==='shared'?l.filter(x=>x.owner==='Compartido'):l;const items=this.scope==='shared'?i.filter(x=>x.owner==='Compartido'):i;const boxes=this.scope==='shared'?b.filter(x=>x.owner==='Compartido'):b;this.rows.set(locations);this.boxes.set(await Promise.all(boxes.map(async x=>({...x,url:await this.d.signed(x.exterior_photo_path)}))));this.items.set(await Promise.all(items.map(async x=>({...x,url:await this.d.signed(x.photo_path)}))));}
   async save(){this.busy.set(true);this.error.set('');try{const v={name:this.name,type:this.type,parent_id:this.parent,owner:this.owner};if(this.editingId)await this.d.updateLocation(this.editingId,v);else await this.d.addLocation(v);this.close();await this.load();}catch(e){this.error.set((e as Error).message||'No se pudo guardar la ubicación.');}finally{this.busy.set(false);}}
-  async del(e:Event,id:string){e.stopPropagation();this.busy.set(true);this.error.set('');try{await this.d.remove('locations',id);await this.load();}catch(err){this.error.set((err as Error).message||'No se pudo enviar a la papelera.');}finally{this.busy.set(false);}}
+  async del(e:Event,id:string){e.stopPropagation();if(!confirm('¿Enviar esta ubicación a la papelera?'))return;this.busy.set(true);this.error.set('');try{await this.d.remove('locations',id);await this.load();}catch(err){this.error.set((err as Error).message||'No se pudo enviar a la papelera.');}finally{this.busy.set(false);}}
   openRequestedItemEdit(){const x=this.requestedItemEditId?this.items().find(r=>r.id===this.requestedItemEditId):null;if(x)this.editItem(x);else this.error.set('No se pudo cargar ese objeto para editar.');}
-  editItem(x:Item){this.itemEditingId=x.id;this.itemName=x.name;this.itemDescription=x.description||'';this.itemCategory=x.category||'Otros';this.itemOwner=x.owner;this.itemLocation=x.location_id;this.itemBox=x.box_id;this.itemFile=undefined;this.error.set('');this.itemOpen=true;}
+  editItem(x:Item){this.itemAdvanced=true;this.itemEditingId=x.id;this.itemName=x.name;this.itemDescription=x.description||'';this.itemCategory=x.category||'Otros';this.itemOwner=x.owner;this.itemLocation=x.location_id;this.itemBox=x.box_id;this.itemFile=undefined;this.error.set('');this.itemOpen=true;}
   closeItem(){this.itemOpen=false;this.resetItem();}
-  resetItem(){this.itemEditingId=null;this.itemName='';this.itemDescription='';this.itemCategory='Otros';this.itemOwner='Compartido';this.itemLocation=null;this.itemBox=null;this.itemFile=undefined;this.error.set('');}
+  resetItem(){this.itemEditingId=null;this.itemAdvanced=false;this.itemName='';this.itemDescription='';this.itemCategory='Otros';this.itemOwner=this.auth.profile()?.display_name||'Compartido';this.itemLocation=null;this.itemBox=null;this.itemFile=undefined;this.error.set('');}
   pickItem(e:Event){this.itemFile=(e.target as HTMLInputElement).files?.[0];}
   async saveItem(){if(!this.itemEditingId)return;this.busy.set(true);this.error.set('');try{await this.d.updateItem(this.itemEditingId,{name:this.itemName,description:this.itemDescription,category:this.itemCategory,owner:this.itemOwner,location_id:this.itemBox?null:this.itemLocation,box_id:this.itemBox},this.itemFile);this.closeItem();await this.load();}catch(e){this.error.set((e as Error).message||'No se pudo guardar el objeto.');}finally{this.busy.set(false);}}
 }

@@ -28,8 +28,8 @@ import { AppLogoComponent, EmptyStateComponent } from '../shared/ui.components';
             @if (loading()) { <ion-spinner name="crescent"/> }
           </div>
           <div class="scope-toggle" role="group" aria-label="Alcance de búsqueda">
-            <button type="button" [class.active]="scope==='mine'" (click)="setScope('mine')"><ion-icon name="person-outline"></ion-icon><span>Mis cosas y compartidas</span></button>
-            <button type="button" [class.active]="scope==='all'" (click)="setScope('all')"><ion-icon name="people-outline"></ion-icon><span>Todo lo de casa</span></button>
+            <button type="button" [class.active]="scope==='mine'" (click)="setScope('mine')"><ion-icon name="person-outline"></ion-icon><span>Mis cosas</span></button>
+            <button type="button" [class.active]="scope==='shared'" (click)="setScope('shared')"><ion-icon name="people-outline"></ion-icon><span>De la casa</span></button>
           </div>
         </section>
 
@@ -136,11 +136,11 @@ import { AppLogoComponent, EmptyStateComponent } from '../shared/ui.components';
 })
 export class HomePage {
   data = inject(DataService); auth = inject(AuthService); theme = inject(ThemeService);
-  term = ''; scope: 'mine'|'all' = 'mine'; items = signal<any[]>([]); boxes = signal<any[]>([]); allItems = signal<any[]>([]); allBoxes = signal<any[]>([]); locations = signal<any[]>([]); loading = signal(false);
+  term = ''; scope: 'mine'|'shared' = 'mine'; items = signal<any[]>([]); boxes = signal<any[]>([]); allItems = signal<any[]>([]); allBoxes = signal<any[]>([]); locations = signal<any[]>([]); loading = signal(false);
   constructor() { addIcons({moonOutline,sunnyOutline,logOutOutline,personOutline,peopleOutline,cubeOutline,archiveOutline,locationOutline,searchOutline,chevronForwardOutline,add}); this.loadOverview(); }
   greeting() { const hour = new Date().getHours(); return hour < 12 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches'; }
   initial() { return this.auth.profile()?.display_name?.charAt(0) || '?'; }
-  setScope(scope: 'mine'|'all') { this.scope = scope; this.run(); }
+  setScope(scope: 'mine'|'shared') { this.scope = scope; this.run(); }
   async loadOverview() {
     const [locations, items, boxes] = await Promise.all([this.data.locations(), this.data.items(), this.data.boxes()]);
     this.locations.set(locations);
