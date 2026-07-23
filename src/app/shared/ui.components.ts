@@ -63,12 +63,12 @@ export class EmptyStateComponent {
       }
     </div>`,
   styles: [`
-    .owners{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}button{min-height:74px;padding:9px;border:1px solid var(--fi-border);border-radius:15px;background:var(--fi-surface-2);color:var(--fi-muted);font:inherit;font-size:.76rem;font-weight:750;transition:.18s ease}button span{width:28px;height:28px;display:grid;place-items:center;margin:0 auto 5px;border-radius:50%;background:var(--fi-surface);font-size:15px}button.active{border-color:var(--fi-primary);background:var(--fi-primary-soft);color:var(--fi-primary-strong);box-shadow:inset 0 0 0 1px var(--fi-primary)}
+    .owners{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}button{min-height:74px;padding:9px;border:1px solid var(--fi-border);border-radius:15px;background:var(--fi-surface-2);color:var(--fi-muted);font:inherit;font-size:.76rem;font-weight:750;transition:.18s ease}button span{width:28px;height:28px;display:grid;place-items:center;margin:0 auto 5px;border-radius:50%;background:var(--fi-surface);font-size:15px}button.active{border-color:var(--fi-primary);background:var(--fi-primary-soft);color:var(--fi-primary-strong);box-shadow:inset 0 0 0 1px var(--fi-primary)}
   `]
 })
 export class OwnerSelectorComponent {
   value = input.required<Owner>();
   valueChange = output<Owner>();
-  owners: Owner[] = ['Nahuel', 'ML', 'Compartido'];
+  owners: Owner[] = ['Nahuel', 'ML', 'lili', 'Compartido'];
   constructor() { addIcons({personOutline, peopleOutline}); }
 }

@@ -4,6 +4,7 @@ import { IonButton, IonContent, IonIcon, IonInput, IonNote, IonSpinner } from '@
 import { addIcons } from 'ionicons';
 import { checkmarkCircle, contrastOutline, eyeOffOutline, eyeOutline, moonOutline, sunnyOutline } from 'ionicons/icons';
 import { AuthService } from '../core/auth.service';
+import { PersonName } from '../core/models';
 import { ThemePreference, ThemeService } from '../core/theme.service';
 import { AppLogoComponent } from '../shared/ui.components';
 
@@ -62,7 +63,7 @@ import { AppLogoComponent } from '../shared/ui.components';
     .orb{position:absolute;border-radius:50%;filter:blur(2px);pointer-events:none}.orb.one{width:420px;height:420px;left:-230px;top:-140px;background:var(--fi-primary-soft)}.orb.two{width:280px;height:280px;right:-190px;bottom:-110px;background:var(--fi-primary-soft)}
     .login-card{position:relative;z-index:2;padding:30px}.mobile-brand{display:none}.card-title{display:flex;justify-content:space-between;align-items:start;gap:16px}.card-title h2{margin:0 0 24px;font-size:1.55rem;letter-spacing:-.035em}
     .themes{display:flex;padding:3px;border-radius:12px;background:var(--fi-surface-2)}.themes button{width:34px;height:34px;border:0;border-radius:9px;background:transparent;color:var(--fi-muted)}.themes button.active{background:var(--fi-surface);color:var(--fi-primary);box-shadow:0 3px 8px rgba(0,0,0,.08)}
-    .people{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}.people button{position:relative;min-height:104px;border:1px solid var(--fi-border);border-radius:18px;background:var(--fi-surface-2);color:var(--fi-text);font:inherit}.people span{display:grid;place-items:center;width:48px;height:48px;margin:0 auto 7px;border-radius:17px;background:var(--fi-primary-soft);color:var(--fi-primary);font-weight:800}.people strong{font-size:.9rem}.people ion-icon{position:absolute;right:9px;top:9px;color:var(--fi-primary);opacity:0}.people button.active{border-color:var(--fi-primary);box-shadow:inset 0 0 0 1px var(--fi-primary)}.people button.active ion-icon{opacity:1}
+    .people{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}.people button{position:relative;min-height:104px;border:1px solid var(--fi-border);border-radius:18px;background:var(--fi-surface-2);color:var(--fi-text);font:inherit}.people span{display:grid;place-items:center;width:48px;height:48px;margin:0 auto 7px;border-radius:17px;background:var(--fi-primary-soft);color:var(--fi-primary);font-weight:800}.people strong{font-size:.9rem}.people ion-icon{position:absolute;right:9px;top:9px;color:var(--fi-primary);opacity:0}.people button.active{border-color:var(--fi-primary);box-shadow:inset 0 0 0 1px var(--fi-primary)}.people button.active ion-icon{opacity:1}
     label{display:block;margin:0 4px 8px;font-size:.78rem;font-weight:750;color:var(--fi-muted)}.password{display:flex;align-items:center;border:1px solid var(--fi-border);border-radius:15px;background:var(--fi-surface-2);overflow:hidden}.password ion-input{--padding-start:15px;min-height:54px}.password button{width:50px;height:50px;border:0;background:transparent;color:var(--fi-muted);font-size:20px}.remember{margin-top:15px;text-align:center;font-weight:500}.remember input{accent-color:var(--fi-primary);vertical-align:-1px}
     @media(max-width:760px){.login-shell{display:block;width:min(100% - 28px,460px);padding:30px 0}.welcome{display:none}.login-card{padding:24px}.mobile-brand{display:block;margin-bottom:36px}.card-title{align-items:center}}
   `]
@@ -70,13 +71,13 @@ import { AppLogoComponent } from '../shared/ui.components';
 export class LoginPage {
   private auth = inject(AuthService);
   theme = inject(ThemeService);
-  name: 'Nahuel'|'ML' = 'Nahuel';
+  name: PersonName = 'Nahuel';
   password = '';
   remember = true;
   showPassword = false;
   loading = signal(false);
   error = signal('');
-  people = [{name: 'Nahuel' as const, initials: 'N'}, {name: 'ML' as const, initials: 'ML'}];
+  people: {name: PersonName; initials: string}[] = [{name: 'Nahuel', initials: 'N'}, {name: 'ML', initials: 'ML'}, {name: 'lili', initials: 'L'}];
   themeOptions: {value: ThemePreference; label: string; icon: string}[] = [
     {value:'light', label:'Claro', icon:'sunny-outline'}, {value:'dark', label:'Oscuro', icon:'moon-outline'}, {value:'system', label:'Sistema', icon:'contrast-outline'}
   ];
