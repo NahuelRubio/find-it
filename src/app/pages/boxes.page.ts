@@ -1,16 +1,16 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { IonButton,IonButtons,IonContent,IonFab,IonFabButton,IonHeader,IonIcon,IonInput,IonModal,IonSelect,IonSelectOption,IonTextarea,IonToolbar } from '@ionic/angular/standalone';
+import { IonButton,IonButtons,IonContent,IonFab,IonFabButton,IonHeader,IonIcon,IonInput,IonModal,IonTextarea,IonToolbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { add, archiveOutline, cameraOutline, createOutline, peopleOutline, personOutline, trashOutline } from 'ionicons/icons';
 import { DataService } from '../core/data.service';
 import { Box, Location, Owner } from '../core/models';
-import { EmptyStateComponent, OwnerSelectorComponent } from '../shared/ui.components';
+import { EmptyStateComponent, LocationPickerComponent, OptionPickerComponent, OwnerSelectorComponent } from '../shared/ui.components';
 
 @Component({
   standalone:true,
-  imports:[FormsModule,IonButton,IonButtons,IonContent,IonFab,IonFabButton,IonHeader,IonIcon,IonInput,IonModal,IonSelect,IonSelectOption,IonTextarea,IonToolbar,EmptyStateComponent,OwnerSelectorComponent],
+  imports:[FormsModule,IonButton,IonButtons,IonContent,IonFab,IonFabButton,IonHeader,IonIcon,IonInput,IonModal,IonTextarea,IonToolbar,EmptyStateComponent,LocationPickerComponent,OptionPickerComponent,OwnerSelectorComponent],
   template:`
   <ion-header><ion-toolbar><div class="toolbar-title"><div><p class="eyebrow">Contenedores</p><h1>Cajas</h1></div><span>{{rows().length}}</span></div></ion-toolbar></ion-header>
   <ion-content><main class="page-shell">
@@ -22,8 +22,8 @@ import { EmptyStateComponent, OwnerSelectorComponent } from '../shared/ui.compon
   </main>
     <ion-modal [isOpen]="open" (didDismiss)="close()"><ng-template><ion-header><ion-toolbar><div class="modal-title"><ion-buttons><ion-button type="button" (click)="close()">Cancelar</ion-button></ion-buttons><b>{{editingId ? 'Editar caja' : 'Nueva caja'}}</b><span></span></div></ion-toolbar></ion-header>
     <ion-content><div class="form-sheet">
-      <div class="form-section"><h3>Información</h3><ion-input label="Nombre" labelPlacement="stacked" placeholder="Ej. Caja de cables" [(ngModel)]="name"/><ion-textarea label="Qué contiene" labelPlacement="stacked" autoGrow="true" placeholder="Describe el contenido para encontrarlo al buscar" [(ngModel)]="description"/><ion-select label="Categoría" labelPlacement="stacked" [(ngModel)]="category">@for(c of d.categories;track c){<ion-select-option [value]="c">{{c}}</ion-select-option>}</ion-select></div>
-      <div class="form-section"><h3>Ubicación</h3><ion-select label="Lugar" labelPlacement="stacked" [(ngModel)]="location"><ion-select-option [value]="null">Sin ubicación</ion-select-option>@for(l of locations();track l.id){<ion-select-option [value]="l.id">{{l.name}}</ion-select-option>}</ion-select><ion-select label="Dentro de otra caja" labelPlacement="stacked" [(ngModel)]="parentBox"><ion-select-option [value]="null">No</ion-select-option>@for(b of parentBoxOptions();track b.id){<ion-select-option [value]="b.id">{{b.name}}</ion-select-option>}</ion-select></div>
+      <div class="form-section"><h3>Información</h3><ion-input label="Nombre" labelPlacement="stacked" placeholder="Ej. Caja de cables" [(ngModel)]="name"/><ion-textarea label="Qué contiene" labelPlacement="stacked" autoGrow="true" placeholder="Describe el contenido para encontrarlo al buscar" [(ngModel)]="description"/><app-option-picker label="Categoría" icon="archive-outline" [options]="categoryOptions()" [value]="category" (valueChange)="category=$event || 'Otros'"/></div>
+      <div class="form-section"><h3>Ubicación</h3><app-location-picker label="Lugar" emptyLabel="Sin ubicación" [locations]="locations()" [value]="location" (valueChange)="location=$event"/><app-option-picker label="Dentro de otra caja" emptyLabel="No" icon="archive-outline" [allowEmpty]="true" [options]="parentBoxPickerOptions()" [value]="parentBox" (valueChange)="parentBox=$event"/></div>
       <div class="form-section"><h3>Fotografía exterior</h3><label class="photo-input"><ion-icon name="camera-outline"/> {{file?.name||'Hacer foto o elegir archivo'}}<input hidden type="file" accept="image/*" capture="environment" (change)="pick($event)"></label></div>
       <div class="form-section"><h3>Propiedad</h3><app-owner-selector [value]="owner" (valueChange)="owner=$event"/></div>
       @if(error()) { <p class="error-note">{{ error() }}</p> }
@@ -40,6 +40,8 @@ export class BoxesPage{
   d=inject(DataService);private route=inject(ActivatedRoute);rows=signal<any[]>([]);locations=signal<Location[]>([]);busy=signal(false);error=signal('');open=false;editingId:string|null=null;name='';description='';category='Otros';owner:Owner='Compartido';location:string|null=null;parentBox:string|null=null;file?:File;
   constructor(){addIcons({add,trashOutline,archiveOutline,cameraOutline,createOutline,personOutline,peopleOutline});this.route.queryParamMap.subscribe(params=>{if(params.get('nuevo')==='1')this.newBox();});this.load();}
   locationName(id:string|null){return id?this.locations().find(x=>x.id===id)?.name||'Ubicación':'Sin ubicación';}
+  categoryOptions(){return this.d.categories.map(c=>({value:c,label:c}));}
+  parentBoxPickerOptions(){return this.parentBoxOptions().map(b=>({value:b.id,label:b.name}));}
   parentBoxOptions(){return this.rows().filter(b=>b.id!==this.editingId);}
   async load(){const[b,l]=await Promise.all([this.d.boxes(),this.d.locations()]);this.locations.set(l);this.rows.set(await Promise.all(b.map(async x=>({...x,url:await this.d.signed(x.exterior_photo_path)}))));}
   pick(e:Event){this.file=(e.target as HTMLInputElement).files?.[0];}

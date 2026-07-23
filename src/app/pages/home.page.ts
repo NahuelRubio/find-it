@@ -73,7 +73,7 @@ import { AppLogoComponent, EmptyStateComponent } from '../shared/ui.components';
                 <div class="section-title"><h2>Últimos objetos</h2><span>{{recentItems().length}}</span></div>
                 <div class="fi-grid">
                   @for (x of recentItems(); track x.id) {
-                    <a class="fi-card entity-card compact editable-card" [href]="'#/objetos?editar=' + x.id">
+                    <a class="fi-card entity-card compact editable-card" [href]="itemHref(x)">
                       <div class="visual">@if(x.url){<img [src]="x.url" [alt]="x.name"/>}@else{<ion-icon name="cube-outline"/>}</div>
                       <div class="body"><h3>{{x.name}}</h3><p>{{placeName(x)}}</p>
                         <div class="meta-row"><span class="fi-chip">{{x.category || 'Otros'}}</span><span class="fi-chip">{{x.owner}}</span></div>
@@ -96,7 +96,7 @@ import { AppLogoComponent, EmptyStateComponent } from '../shared/ui.components';
           <div class="section-title"><h2>Objetos</h2><span>{{ items().length }} resultados</span></div>
           <div class="fi-grid">
             @for (x of items(); track x.id) {
-              <a class="fi-card entity-card editable-card" [href]="'#/objetos?editar=' + x.id">
+              <a class="fi-card entity-card editable-card" [href]="itemHref(x)">
                 <div class="visual">@if(x.url){<img [src]="x.url" [alt]="x.name"/>}@else{<ion-icon name="cube-outline"/>}</div>
                 <div class="body"><h3>{{x.name}}</h3><p class="result-place"><ion-icon name="location-outline"/>{{placeName(x)}}</p><p>{{x.description || 'Sin descripción'}}</p>
                   <div class="meta-row"><span class="fi-chip"><ion-icon [name]="x.owner==='Compartido'?'people-outline':'person-outline'"/>{{x.owner}}</span><span class="fi-chip">{{x.category || 'Otros'}}</span></div>
@@ -156,6 +156,8 @@ export class HomePage {
   placeName(x:any){return x.location_id?this.locationPath(x.location_id):x.box_id?this.itemBoxPath(x.box_id):'Sin ubicación';}
   boxPlaceName(x:any){return x.location_id?this.locationPath(x.location_id):x.parent_box_id?this.itemBoxPath(x.parent_box_id):'Sin ubicación';}
   itemBoxPath(id:string): string {const box=this.allBoxes().find(x=>x.id===id)||this.boxes().find(x=>x.id===id);if(!box)return 'En una caja';const place: string=box.location_id?this.locationPath(box.location_id):box.parent_box_id?this.itemBoxPath(box.parent_box_id):'Sin ubicación';return `${place} / ${box.name}`;}
+  itemLocationId(x:any): string|null {if(x.location_id)return x.location_id;let box=this.allBoxes().find(b=>b.id===x.box_id)||this.boxes().find(b=>b.id===x.box_id);while(box){if(box.location_id)return box.location_id;box=this.allBoxes().find(b=>b.id===box.parent_box_id)||this.boxes().find(b=>b.id===box.parent_box_id);}return null;}
+  itemHref(x:any){const location=this.itemLocationId(x);return location?`#/lugares?parent=${location}&editarObjeto=${x.id}`:`#/lugares?editarObjeto=${x.id}`;}
   locationSummary(id:string){const locs=this.locations().filter(x=>x.parent_id===id).length;const items=this.allItems().filter(x=>x.location_id===id).length;const boxes=this.allBoxes().filter(x=>x.location_id===id).length;return [locs?`${locs} ubicaciones`:null,items?`${items} objetos`:null,boxes?`${boxes} cajas`:null].filter(Boolean).join(' · ')||'Vacío';}
   locationPath(id:string){const out:string[]=[];let current=this.locations().find(x=>x.id===id);while(current){out.unshift(current.name);current=this.locations().find(x=>x.id===current.parent_id);}return out.slice(-2).join(' / ')||'Ubicación';}
   async run() {

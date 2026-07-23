@@ -1,29 +1,29 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { IonButton,IonButtons,IonContent,IonFab,IonFabButton,IonHeader,IonIcon,IonInput,IonModal,IonSelect,IonSelectOption,IonTextarea,IonToolbar } from '@ionic/angular/standalone';
+import { ActivatedRoute, Router } from '@angular/router';
+import { IonButton,IonButtons,IonContent,IonFab,IonFabButton,IonHeader,IonIcon,IonInput,IonModal,IonTextarea,IonToolbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { add, cameraOutline, createOutline, cubeOutline, peopleOutline, personOutline, trashOutline } from 'ionicons/icons';
 import { DataService } from '../core/data.service';
 import { Box, Item, Location, Owner } from '../core/models';
-import { EmptyStateComponent, OwnerSelectorComponent } from '../shared/ui.components';
+import { EmptyStateComponent, LocationPickerComponent, OptionPickerComponent, OwnerSelectorComponent } from '../shared/ui.components';
 
 @Component({
   standalone:true,
-  imports:[FormsModule,IonButton,IonButtons,IonContent,IonFab,IonFabButton,IonHeader,IonIcon,IonInput,IonModal,IonSelect,IonSelectOption,IonTextarea,IonToolbar,EmptyStateComponent,OwnerSelectorComponent],
+  imports:[FormsModule,IonButton,IonButtons,IonContent,IonFab,IonFabButton,IonHeader,IonIcon,IonInput,IonModal,IonTextarea,IonToolbar,EmptyStateComponent,LocationPickerComponent,OptionPickerComponent,OwnerSelectorComponent],
   template:`
   <ion-header><ion-toolbar><div class="toolbar-title"><div><p class="eyebrow">Todo lo que guardas</p><h1>Objetos</h1></div><span>{{rows().length}}</span></div></ion-toolbar></ion-header>
   <ion-content><main class="page-shell">
-    @if(rows().length){<div class="fi-grid">@for(x of rows();track x.id){<article class="fi-card item-card" (click)="edit(x)">
+    @if(rows().length){<div class="fi-grid">@for(x of rows();track x.id){<article class="fi-card item-card" (click)="goToItem(x)">
       <div class="item-photo">@if(x.url){<img [src]="x.url" [alt]="x.name"/>}@else{<ion-icon name="cube-outline"/>}</div>
-      <div class="item-body"><div class="meta-row"><span class="fi-chip">{{x.category||'Otros'}}</span><span class="fi-chip"><ion-icon [name]="x.owner==='Compartido'?'people-outline':'person-outline'"/>{{x.owner}}</span></div><h2>{{x.name}}</h2><p>{{x.description||'Sin descripción'}}</p><div class="path"><span>{{placeName(x)}}</span><span class="actions"><ion-button type="button" fill="clear" (click)="edit(x,$event)" [disabled]="busy()" aria-label="Editar objeto"><ion-icon name="create-outline"/></ion-button><ion-button type="button" class="danger-quiet" fill="clear" (click)="del(x.id,$event)" [disabled]="busy()" aria-label="Enviar a papelera"><ion-icon name="trash-outline"/></ion-button></span></div></div>
+      <div class="item-body"><div class="meta-row"><span class="fi-chip">{{x.category||'Otros'}}</span><span class="fi-chip"><ion-icon [name]="x.owner==='Compartido'?'people-outline':'person-outline'"/>{{x.owner}}</span></div><h2>{{x.name}}</h2><p>{{x.description||'Sin descripción'}}</p><div class="path"><span>{{placeName(x)}}</span><span class="actions"><ion-button type="button" fill="clear" (click)="goToItem(x,$event)" [disabled]="busy()" aria-label="Ver en su ubicación"><ion-icon name="create-outline"/></ion-button><ion-button type="button" class="danger-quiet" fill="clear" (click)="del(x.id,$event)" [disabled]="busy()" aria-label="Enviar a papelera"><ion-icon name="trash-outline"/></ion-button></span></div></div>
     </article>}</div>}@else{<app-empty-state title="Añade tu primer objeto" message="Ponle nombre, indica dónde está y la próxima vez lo encontrarás en segundos." action="Añadir objeto" icon="cube-outline" (pressed)="newItem()"/>}
     <ion-fab class="fi-fab" slot="fixed" vertical="bottom" horizontal="end"><ion-fab-button (click)="newItem()"><ion-icon name="add"/></ion-fab-button></ion-fab>
   </main>
   <ion-modal [isOpen]="open" (didDismiss)="close()"><ng-template><ion-header><ion-toolbar><div class="modal-title"><ion-buttons><ion-button type="button" (click)="close()">Cancelar</ion-button></ion-buttons><b>{{editingId ? 'Editar objeto' : 'Nuevo objeto'}}</b><span></span></div></ion-toolbar></ion-header>
     <ion-content><div class="form-sheet">
-      <div class="form-section"><h3>Información</h3><ion-input label="Nombre" labelPlacement="stacked" placeholder="Ej. Adaptador HDMI" [(ngModel)]="name"/><ion-textarea label="Descripción" labelPlacement="stacked" autoGrow="true" placeholder="Detalles que te ayuden a reconocerlo" [(ngModel)]="description"/><ion-select label="Categoría" labelPlacement="stacked" [(ngModel)]="category">@for(c of d.categories;track c){<ion-select-option [value]="c">{{c}}</ion-select-option>}</ion-select></div>
-      <div class="form-section"><h3>Ubicación</h3><ion-select label="Caja" labelPlacement="stacked" [(ngModel)]="box"><ion-select-option [value]="null">Sin caja</ion-select-option>@for(b of boxes();track b.id){<ion-select-option [value]="b.id">{{b.name}}</ion-select-option>}</ion-select><ion-select label="Ubicación directa" labelPlacement="stacked" [(ngModel)]="location" [disabled]="!!box"><ion-select-option [value]="null">Sin ubicación directa</ion-select-option>@for(l of locations();track l.id){<ion-select-option [value]="l.id">{{l.name}}</ion-select-option>}</ion-select></div>
+      <div class="form-section"><h3>Información</h3><ion-input label="Nombre" labelPlacement="stacked" placeholder="Ej. Adaptador HDMI" [(ngModel)]="name"/><ion-textarea label="Descripción" labelPlacement="stacked" autoGrow="true" placeholder="Detalles que te ayuden a reconocerlo" [(ngModel)]="description"/><app-option-picker label="Categoría" icon="cube-outline" [options]="categoryOptions()" [value]="category" (valueChange)="category=$event || 'Otros'"/></div>
+      <div class="form-section"><h3>Ubicación</h3><app-option-picker label="Caja" emptyLabel="Sin caja" icon="archive-outline" [allowEmpty]="true" [options]="boxOptions()" [value]="box" (valueChange)="box=$event"/><app-location-picker label="Ubicación directa" emptyLabel="Sin ubicación directa" [locations]="locations()" [value]="location" [disabled]="!!box" (valueChange)="location=$event"/></div>
       <div class="form-section"><h3>Fotografía</h3><label class="photo-input"><ion-icon name="camera-outline"/> {{file?.name||'Hacer foto o elegir archivo'}}<input hidden type="file" accept="image/*" capture="environment" (change)="pick($event)"></label></div>
       <div class="form-section"><h3>Propiedad</h3><app-owner-selector [value]="owner" (valueChange)="owner=$event"/></div>
       @if(error()) { <p class="error-note">{{ error() }}</p> }
@@ -36,12 +36,16 @@ import { EmptyStateComponent, OwnerSelectorComponent } from '../shared/ui.compon
   `]
 })
 export class ItemsPage{
-  d=inject(DataService);private route=inject(ActivatedRoute);rows=signal<any[]>([]);locations=signal<Location[]>([]);boxes=signal<Box[]>([]);busy=signal(false);error=signal('');open=false;editingId:string|null=null;requestedEditId:string|null=null;name='';description='';category='Otros';owner:Owner='Compartido';location:string|null=null;box:string|null=null;file?:File;
+  d=inject(DataService);private route=inject(ActivatedRoute);private router=inject(Router);rows=signal<any[]>([]);locations=signal<Location[]>([]);boxes=signal<Box[]>([]);busy=signal(false);error=signal('');open=false;editingId:string|null=null;requestedEditId:string|null=null;name='';description='';category='Otros';owner:Owner='Compartido';location:string|null=null;box:string|null=null;file?:File;
   constructor(){addIcons({add,trashOutline,cubeOutline,cameraOutline,createOutline,personOutline,peopleOutline});this.route.queryParamMap.subscribe(async params=>{this.requestedEditId=params.get('editar');await this.load();if(params.get('nuevo')==='1')this.newItem();else if(this.requestedEditId)this.openRequestedEdit();});}
   placeName(x:any){return x.box_id?'En '+(this.boxes().find(b=>b.id===x.box_id)?.name||'una caja'):x.location_id?this.locations().find(l=>l.id===x.location_id)?.name||'Ubicación':'Sin ubicación';}
+  categoryOptions(){return this.d.categories.map(c=>({value:c,label:c}));}
+  boxOptions(){return this.boxes().map(b=>({value:b.id,label:b.name}));}
   async load(){const scope=this.requestedEditId?'all':'visible';const[i,l,b]=await Promise.all([this.d.items(false,scope),this.d.locations(false,scope),this.d.boxes(false,scope)]);this.locations.set(l);this.boxes.set(b);this.rows.set(await Promise.all(i.map(async x=>({...x,url:await this.d.signed(x.photo_path)}))));}
   pick(e:Event){this.file=(e.target as HTMLInputElement).files?.[0];}
   newItem(){this.reset();this.open=true;}
+  itemLocationId(x:Item):string|null{if(x.location_id)return x.location_id;let box:Box|undefined=this.boxes().find(b=>b.id===x.box_id);while(box){if(box.location_id)return box.location_id;const parentId=box.parent_box_id;box=parentId?this.boxes().find(b=>b.id===parentId):undefined;}return null;}
+  goToItem(x:Item,e?:Event){e?.stopPropagation();const parent=this.itemLocationId(x);this.router.navigate(['/lugares'],{queryParams:parent?{parent,editarObjeto:x.id}:{editarObjeto:x.id}});}
   openRequestedEdit(){const x=this.requestedEditId?this.rows().find(r=>r.id===this.requestedEditId):null;if(x)this.edit(x);else this.error.set('No se pudo cargar ese objeto para editar.');}
   edit(x:Item,e?:Event){e?.stopPropagation();this.editingId=x.id;this.name=x.name;this.description=x.description||'';this.category=x.category||'Otros';this.owner=x.owner;this.location=x.location_id;this.box=x.box_id;this.file=undefined;this.error.set('');this.open=true;}
   close(){this.open=false;this.reset();}
