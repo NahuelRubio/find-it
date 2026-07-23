@@ -73,12 +73,12 @@ import { AppLogoComponent, EmptyStateComponent } from '../shared/ui.components';
                 <div class="section-title"><h2>Últimos objetos</h2><span>{{recentItems().length}}</span></div>
                 <div class="fi-grid">
                   @for (x of recentItems(); track x.id) {
-                    <article class="fi-card entity-card compact">
+                    <a class="fi-card entity-card compact editable-card" [href]="'#/objetos?editar=' + x.id">
                       <div class="visual">@if(x.url){<img [src]="x.url" [alt]="x.name"/>}@else{<ion-icon name="cube-outline"/>}</div>
                       <div class="body"><h3>{{x.name}}</h3><p>{{placeName(x)}}</p>
                         <div class="meta-row"><span class="fi-chip">{{x.category || 'Otros'}}</span><span class="fi-chip">{{x.owner}}</span></div>
                       </div>
-                    </article>
+                    </a>
                   }
                 </div>
               </section>
@@ -96,12 +96,12 @@ import { AppLogoComponent, EmptyStateComponent } from '../shared/ui.components';
           <div class="section-title"><h2>Objetos</h2><span>{{ items().length }} resultados</span></div>
           <div class="fi-grid">
             @for (x of items(); track x.id) {
-              <article class="fi-card entity-card">
+              <a class="fi-card entity-card editable-card" [href]="'#/objetos?editar=' + x.id">
                 <div class="visual">@if(x.url){<img [src]="x.url" [alt]="x.name"/>}@else{<ion-icon name="cube-outline"/>}</div>
                 <div class="body"><h3>{{x.name}}</h3><p class="result-place"><ion-icon name="location-outline"/>{{placeName(x)}}</p><p>{{x.description || 'Sin descripción'}}</p>
                   <div class="meta-row"><span class="fi-chip"><ion-icon [name]="x.owner==='Compartido'?'people-outline':'person-outline'"/>{{x.owner}}</span><span class="fi-chip">{{x.category || 'Otros'}}</span></div>
                 </div>
-              </article>
+              </a>
             }
           </div>
         }
@@ -130,7 +130,7 @@ import { AppLogoComponent, EmptyStateComponent } from '../shared/ui.components';
     .scope-toggle button.active{background:var(--fi-surface);color:var(--fi-primary-strong);box-shadow:0 8px 20px rgba(30,67,61,.08)}
     .scope-toggle ion-icon{font-size:17px}
     .quick .section-title{margin-top:18px}.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}.quick-grid a{position:relative;display:grid;grid-template-columns:42px 1fr auto;grid-template-rows:auto auto;gap:1px 12px;align-items:center;text-align:left;padding:13px;border:1px solid var(--fi-border);border-radius:18px;background:var(--fi-surface);color:var(--fi-text);box-shadow:0 5px 18px rgba(30,67,61,.05);font:inherit;text-decoration:none}.quick-grid a>span{grid-row:1/3;width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:var(--fi-primary-soft);color:var(--fi-primary)}.quick-grid b{font-size:.82rem}.quick-grid small{color:var(--fi-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.quick-grid a>ion-icon{grid-row:1/3;grid-column:3;color:var(--fi-primary)}
-    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat-card{display:grid;gap:3px;padding:16px;color:var(--fi-text);text-decoration:none}.stat-card ion-icon{width:34px;height:34px;padding:8px;border-radius:13px;background:var(--fi-primary-soft);color:var(--fi-primary);font-size:19px}.stat-card strong{margin-top:8px;font-size:1.7rem;line-height:1}.stat-card span{color:var(--fi-muted);font-size:.78rem;font-weight:750}.map-list{display:grid;gap:9px}.map-row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;padding:13px;color:var(--fi-text);text-decoration:none}.map-row>span{width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:var(--fi-primary-soft);color:var(--fi-primary)}.map-row b{display:block;font-size:.92rem}.map-row small{display:block;margin-top:3px;color:var(--fi-muted);font-size:.76rem}.map-row>ion-icon{color:var(--fi-primary)}.entity-card.compact{min-height:130px}.entity-card.compact .visual{height:100%}.entity-card.compact .body h3{margin-top:0}.result-place{display:flex;align-items:center;gap:6px;height:auto!important;margin:4px 0 6px!important;color:var(--fi-primary)!important;font-weight:800}.result-place ion-icon{flex:0 0 auto;font-size:15px}
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat-card{display:grid;gap:3px;padding:16px;color:var(--fi-text);text-decoration:none}.stat-card ion-icon{width:34px;height:34px;padding:8px;border-radius:13px;background:var(--fi-primary-soft);color:var(--fi-primary);font-size:19px}.stat-card strong{margin-top:8px;font-size:1.7rem;line-height:1}.stat-card span{color:var(--fi-muted);font-size:.78rem;font-weight:750}.map-list{display:grid;gap:9px}.map-row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;padding:13px;color:var(--fi-text);text-decoration:none}.map-row>span{width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:var(--fi-primary-soft);color:var(--fi-primary)}.map-row b{display:block;font-size:.92rem}.map-row small{display:block;margin-top:3px;color:var(--fi-muted);font-size:.76rem}.map-row>ion-icon{color:var(--fi-primary)}.editable-card{color:var(--fi-text);text-decoration:none}.entity-card.compact{min-height:130px}.entity-card.compact .visual{height:100%}.entity-card.compact .body h3{margin-top:0}.result-place{display:flex;align-items:center;gap:6px;height:auto!important;margin:4px 0 6px!important;color:var(--fi-primary)!important;font-weight:800}.result-place ion-icon{flex:0 0 auto;font-size:15px}
     @media(max-width:680px){.quick-grid{grid-template-columns:1fr;gap:8px}.stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stat-card{padding:12px}.stat-card strong{font-size:1.35rem}.stat-card ion-icon{width:30px;height:30px;padding:7px}.hero{padding-top:4px}.hero h1{margin-bottom:12px}.home ::ng-deep .empty-state{padding:24px 18px}.home ::ng-deep .empty-state .empty-icon{width:54px;height:54px;margin-bottom:12px;border-radius:18px}.home ::ng-deep .empty-state .empty-icon ion-icon{font-size:1.7rem}.home ::ng-deep .empty-state h2{font-size:1.05rem}.home ::ng-deep .empty-state p{margin-bottom:14px;font-size:.82rem;line-height:1.35}}
   `]
 })
