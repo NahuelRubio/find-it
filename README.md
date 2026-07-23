@@ -7,7 +7,7 @@ Aplicación privada doméstica para localizar cajas y objetos. Frontend Angular 
 - La clave publicable de Supabase puede estar en el frontend.
 - La contraseña común y la `service_role` solo viven como secretos de Edge Functions.
 - Todas las tablas y el bucket privado usan RLS.
-- El selector Nahuel/ML atribuye acciones; la contraseña común concede el acceso real.
+- El selector de perfil atribuye acciones; la contraseña común concede el acceso real.
 - Las sesiones anónimas no tienen acceso hasta que `household-access` crea una autorización temporal.
 
 ## 1. Crear Supabase

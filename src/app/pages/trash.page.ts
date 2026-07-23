@@ -25,6 +25,6 @@ export class TrashPage{
   d=inject(DataService);rows=signal<any[]>([]);busy=signal(false);error=signal('');
   constructor(){addIcons({trashOutline,cubeOutline,archiveOutline,locationOutline,refreshOutline});this.load();}
   daysLeft(date:string){return Math.max(0,30-Math.floor((Date.now()-new Date(date).getTime())/86400000));}
-  async load(){const[l,b,i]=await Promise.all([this.d.locations(true),this.d.boxes(true),this.d.items(true)]);this.rows.set([...l.filter(x=>x.deleted_at).map(x=>({...x,table:'locations',kind:'Ubicación'})),...b.filter(x=>x.deleted_at).map(x=>({...x,table:'boxes',kind:'Caja'})),...i.filter(x=>x.deleted_at).map(x=>({...x,table:'items',kind:'Objeto'}))]);}
+  async load(){const[l,b,i]=await Promise.all([this.d.locations(true,'all'),this.d.boxes(true,'all'),this.d.items(true,'all')]);this.rows.set([...l.filter(x=>x.deleted_at).map(x=>({...x,table:'locations',kind:'Ubicación'})),...b.filter(x=>x.deleted_at).map(x=>({...x,table:'boxes',kind:'Caja'})),...i.filter(x=>x.deleted_at).map(x=>({...x,table:'items',kind:'Objeto'}))]);}
   async restore(t:'locations'|'boxes'|'items',id:string){this.busy.set(true);this.error.set('');try{await this.d.restore(t,id);await this.load();}catch(e){this.error.set((e as Error).message||'No se pudo recuperar.');}finally{this.busy.set(false);}}
 }

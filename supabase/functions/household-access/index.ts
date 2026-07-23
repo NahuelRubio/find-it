@@ -41,7 +41,7 @@ Deno.serve(async req => {
 		if (typeof password !== 'string' || !expected || !safeEqual(password, expected)) {
 			return new Response(JSON.stringify({ error: 'Contraseña incorrecta' }), { status: 401, headers: { ...cors, 'Content-Type': 'application/json' } });
 		}
-		if (!['Nahuel', 'ML'].includes(displayName)) throw new Error('Perfil no válido');
+		if (!['Nahuel', 'ML', 'lili'].includes(displayName)) throw new Error('Perfil no válido');
 		const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 		const { data: profile, error: profileError } = await admin.from('profiles').select('id,display_name,household_id,households!inner(slug)').eq('display_name', displayName).eq('households.slug', householdSlug).single();
 		if (profileError || !profile) throw profileError ?? new Error('Perfil no encontrado');
