@@ -59,7 +59,7 @@ ion-toolbar {
 ion-header { box-shadow: none !important; }
 ion-title { font-weight: 750; letter-spacing: -.025em; }
 
-.page-shell { width: min(100% - 32px, 920px); margin: 0 auto; padding: 16px 0 116px; }
+.page-shell { width: min(calc(100% - 32px), 920px); margin: 0 auto; padding: 16px 0 160px; }
 .page-heading { margin: 8px 0 24px; }
 .page-heading h1 { margin: 0 0 7px; font-size: clamp(1.8rem, 6vw, 2.45rem); line-height: 1.05; letter-spacing: -.045em; }
 .page-heading p, .muted { color: var(--fi-muted); }
@@ -111,7 +111,7 @@ ion-title { font-weight: 750; letter-spacing: -.025em; }
 .fi-card, .entity-card { animation: card-in .28s both ease-out; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 @media (max-width: 390px) {
-  .page-shell { width: min(100% - 24px, 920px); }
+  .page-shell { width: min(calc(100% - 24px), 920px); }
   .entity-card { grid-template-columns: 86px 1fr auto; }
 }
 @media (min-width: 900px) { .page-shell { padding-top: 28px; } }

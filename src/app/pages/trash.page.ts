@@ -12,7 +12,8 @@ import { EmptyStateComponent } from '../shared/ui.components';
     <ion-header><ion-toolbar><div class="toolbar-title"><div><p class="eyebrow">Recuperable 30 días</p><h1>Papelera</h1></div></div></ion-toolbar></ion-header>
     <ion-content><main class="page-shell">
       @if(rows().length){<div class="notice"><ion-icon name="trash-outline"/><p>Estos elementos se eliminarán automáticamente al cumplir 30 días.</p></div><div class="fi-list">
-        @for(x of rows();track x.table+x.id){<article class="fi-card trash-card"><span><ion-icon [name]="x.table==='items'?'cube-outline':x.table==='boxes'?'archive-outline':'location-outline'"/></span><div><small>{{x.kind}}</small><h2>{{x.name}}</h2><p>{{daysLeft(x.deleted_at)}} días restantes</p></div><ion-button fill="outline" (click)="restore(x.table,x.id)"><ion-icon name="refresh-outline" slot="start"/>Recuperar</ion-button></article>}
+        @if(error()) { <p class="error-note">{{ error() }}</p> }
+        @for(x of rows();track x.table+x.id){<article class="fi-card trash-card"><span><ion-icon [name]="x.table==='items'?'cube-outline':x.table==='boxes'?'archive-outline':'location-outline'"/></span><div><small>{{x.kind}}</small><h2>{{x.name}}</h2><p>{{daysLeft(x.deleted_at)}} días restantes</p></div><ion-button type="button" fill="outline" (click)="restore(x.table,x.id)" [disabled]="busy()"><ion-icon name="refresh-outline" slot="start"/>Recuperar</ion-button></article>}
       </div>}@else{<app-empty-state title="La papelera está vacía" message="Los elementos que descartes aparecerán aquí y podrás recuperarlos durante 30 días." icon="trash-outline"/>}
     </main></ion-content>`,
   styles:[`
@@ -21,9 +22,9 @@ import { EmptyStateComponent } from '../shared/ui.components';
   `]
 })
 export class TrashPage{
-  d=inject(DataService);rows=signal<any[]>([]);
+  d=inject(DataService);rows=signal<any[]>([]);busy=signal(false);error=signal('');
   constructor(){addIcons({trashOutline,cubeOutline,archiveOutline,locationOutline,refreshOutline});this.load();}
   daysLeft(date:string){return Math.max(0,30-Math.floor((Date.now()-new Date(date).getTime())/86400000));}
   async load(){const[l,b,i]=await Promise.all([this.d.locations(true),this.d.boxes(true),this.d.items(true)]);this.rows.set([...l.filter(x=>x.deleted_at).map(x=>({...x,table:'locations',kind:'Ubicación'})),...b.filter(x=>x.deleted_at).map(x=>({...x,table:'boxes',kind:'Caja'})),...i.filter(x=>x.deleted_at).map(x=>({...x,table:'items',kind:'Objeto'}))]);}
-  async restore(t:'locations'|'boxes'|'items',id:string){await this.d.restore(t,id);await this.load();}
+  async restore(t:'locations'|'boxes'|'items',id:string){this.busy.set(true);this.error.set('');try{await this.d.restore(t,id);await this.load();}catch(e){this.error.set((e as Error).message||'No se pudo recuperar.');}finally{this.busy.set(false);}}
 }

@@ -32,13 +32,18 @@ export class AppLogoComponent {
     <div class="empty-state fi-card">
       <div class="empty-icon"><ion-icon [name]="icon()"/></div>
       <h2>{{ title() }}</h2><p>{{ message() }}</p>
-      @if (action()) { <ion-button class="primary-action" (click)="pressed.emit()">{{ action() }}</ion-button> }
+      @if (action() && href()) {
+        <ion-button class="primary-action" [href]="href()">{{ action() }}</ion-button>
+      } @else if (action()) {
+        <ion-button type="button" class="primary-action" (click)="pressed.emit()">{{ action() }}</ion-button>
+      }
     </div>`
 })
 export class EmptyStateComponent {
   title = input.required<string>();
   message = input.required<string>();
   action = input('');
+  href = input('');
   icon = input('cube-outline');
   pressed = output<void>();
   constructor() { addIcons({cubeOutline, archiveOutline, locateOutline}); }

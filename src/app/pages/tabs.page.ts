@@ -1,25 +1,24 @@
 import { Component } from '@angular/core';
-import { IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/angular/standalone';
+import { IonIcon, IonRouterOutlet } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { add, archiveOutline, cubeOutline, homeOutline, locationOutline, trashOutline } from 'ionicons/icons';
 
 @Component({
   standalone: true,
-  imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, IonRouterOutlet],
+  imports: [IonRouterOutlet, IonIcon],
   template: `
-    <ion-tabs>
-      <ion-router-outlet/>
-      <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="inicio" href="#/inicio"><ion-icon name="home-outline"/><ion-label>Inicio</ion-label></ion-tab-button>
-        <ion-tab-button tab="lugares" href="#/lugares"><ion-icon name="location-outline"/><ion-label>Ubicaciones</ion-label></ion-tab-button>
-        <ion-tab-button class="add-tab" tab="objetos" href="#/objetos"><span><ion-icon name="add"/></span><ion-label>Añadir</ion-label></ion-tab-button>
-        <ion-tab-button tab="cajas" href="#/cajas"><ion-icon name="archive-outline"/><ion-label>Cajas</ion-label></ion-tab-button>
-        <ion-tab-button tab="papelera" href="#/papelera"><ion-icon name="trash-outline"/><ion-label>Papelera</ion-label></ion-tab-button>
-      </ion-tab-bar>
-    </ion-tabs>`,
+    <ion-router-outlet></ion-router-outlet>
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <a href="#/inicio"><ion-icon name="home-outline"></ion-icon><span>Inicio</span></a>
+      <a href="#/lugares"><ion-icon name="location-outline"></ion-icon><span>Ubicaciones</span></a>
+      <a class="add-link" href="#/objetos"><span><ion-icon name="add"></ion-icon></span><em>Añadir</em></a>
+      <a href="#/cajas"><ion-icon name="archive-outline"></ion-icon><span>Cajas</span></a>
+      <a href="#/papelera"><ion-icon name="trash-outline"></ion-icon><span>Papelera</span></a>
+    </nav>`,
   styles: [`
-    ion-tab-bar{--background:color-mix(in srgb,var(--fi-surface) 94%,transparent);--border:0;position:absolute;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(560px,calc(100% - 20px));height:72px;padding:5px 6px;border:1px solid var(--fi-border);border-radius:24px;box-shadow:0 12px 38px rgba(25,67,61,.16);backdrop-filter:blur(18px)}
-    ion-tab-button{--color:var(--fi-muted);--color-selected:var(--fi-primary);--background:transparent;font-size:10px}ion-tab-button ion-icon{font-size:21px}.add-tab span{display:grid;place-items:center;width:43px;height:43px;margin-top:-19px;border:5px solid var(--fi-bg);border-radius:15px;background:var(--fi-primary);color:white;box-sizing:content-box;box-shadow:0 7px 18px rgba(36,101,91,.25)}.add-tab span ion-icon{font-size:25px}.add-tab ion-label{margin-top:2px}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:1000;display:grid;grid-template-columns:repeat(5,1fr);height:88px;padding:8px max(10px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-right));border-top:1px solid var(--fi-border);background:var(--fi-surface);box-shadow:0 -10px 28px rgba(25,67,61,.08)}
+    .bottom-nav a{display:grid;place-items:center;align-content:center;gap:4px;color:var(--fi-muted);font-size:12px;text-decoration:none}.bottom-nav ion-icon{font-size:24px}.bottom-nav a:active,.bottom-nav a:hover{color:var(--fi-primary)}
+    .add-link span{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:var(--fi-primary);color:white;box-shadow:0 7px 18px rgba(36,101,91,.25)}.add-link span ion-icon{font-size:28px}.add-link em{color:var(--fi-muted);font-style:normal}
   `]
 })
 export class TabsPage {

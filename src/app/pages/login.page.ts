@@ -28,7 +28,7 @@ import { AppLogoComponent } from '../shared/ui.components';
           <div class="card-title"><div><p class="eyebrow">Bienvenido de nuevo</p><h2>¿Quién busca hoy?</h2></div>
             <div class="themes" aria-label="Tema">
               @for (option of themeOptions; track option.value) {
-                <button [class.active]="theme.preference() === option.value" (click)="theme.set(option.value)" [attr.aria-label]="option.label">
+                <button type="button" [class.active]="theme.preference() === option.value" (click)="theme.set(option.value)" [attr.aria-label]="option.label">
                   <ion-icon [name]="option.icon"/>
                 </button>
               }
@@ -36,7 +36,7 @@ import { AppLogoComponent } from '../shared/ui.components';
           </div>
           <div class="people">
             @for (person of people; track person.name) {
-              <button [class.active]="name === person.name" (click)="name=person.name">
+              <button type="button" [class.active]="name === person.name" (click)="name=person.name">
                 <span>{{ person.initials }}</span><strong>{{ person.name }}</strong>
                 @if (name === person.name) { <ion-icon name="checkmark-circle"/> }
               </button>
@@ -45,10 +45,10 @@ import { AppLogoComponent } from '../shared/ui.components';
           <label>Contraseña de la casa</label>
           <div class="password">
             <ion-input [type]="showPassword ? 'text' : 'password'" placeholder="Tu contraseña compartida" [(ngModel)]="password" (keyup.enter)="enter()"/>
-            <button (click)="showPassword=!showPassword" aria-label="Mostrar u ocultar contraseña"><ion-icon [name]="showPassword?'eye-off-outline':'eye-outline'"/></button>
+            <button type="button" (click)="showPassword=!showPassword" aria-label="Mostrar u ocultar contraseña"><ion-icon [name]="showPassword?'eye-off-outline':'eye-outline'"/></button>
           </div>
           @if (error()) { <ion-note class="error-note">{{ error() }}</ion-note> }
-          <ion-button expand="block" class="primary-action" (click)="enter()" [disabled]="loading() || !password">
+          <ion-button type="button" expand="block" class="primary-action" (click)="enter()" [disabled]="loading() || !password">
             @if (loading()) { <ion-spinner name="crescent"/> } @else { Entrar en Find it }
           </ion-button>
           <label class="remember"><input type="checkbox" [(ngModel)]="remember"> Recordar este dispositivo</label>
